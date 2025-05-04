@@ -87,6 +87,54 @@ if (slides.length > 0) {
   setInterval(showNextSlide, 5000) // Change every 5 seconds
 }
 
+// Image Carousels
+document.addEventListener("DOMContentLoaded", () => {
+  const carousels = document.querySelectorAll(".image-carousel")
+
+  carousels.forEach((carousel, carouselIndex) => {
+    const slides = carousel.querySelectorAll(".carousel-slide")
+    const dotsContainer = carousel.querySelector(".carousel-dots")
+
+    // Create dots for each slide
+    slides.forEach((_, index) => {
+      const dot = document.createElement("div")
+      dot.classList.add("carousel-dot")
+      if (index === 0) dot.classList.add("active")
+
+      dot.addEventListener("click", () => {
+        // Remove active class from all slides and dots
+        slides.forEach((slide) => slide.classList.remove("active"))
+        dotsContainer.querySelectorAll(".carousel-dot").forEach((d) => d.classList.remove("active"))
+
+        // Add active class to clicked dot and corresponding slide
+        slides[index].classList.add("active")
+        dot.classList.add("active")
+      })
+
+      dotsContainer.appendChild(dot)
+    })
+
+    // Auto-rotate slides
+    let currentIndex = 0
+
+    setInterval(
+      () => {
+        // Remove active class from current slide and dot
+        slides[currentIndex].classList.remove("active")
+        dotsContainer.querySelectorAll(".carousel-dot")[currentIndex].classList.remove("active")
+
+        // Move to next slide
+        currentIndex = (currentIndex + 1) % slides.length
+
+        // Add active class to new slide and dot
+        slides[currentIndex].classList.add("active")
+        dotsContainer.querySelectorAll(".carousel-dot")[currentIndex].classList.add("active")
+      },
+      4000 + carouselIndex * 500,
+    ) // Stagger timing for different carousels
+  })
+})
+
 // Dropdown menu for mobile
 const dropdownLinks = document.querySelectorAll(".has-dropdown > a")
 
@@ -155,3 +203,59 @@ window.addEventListener("scroll", () => {
     }
   })
 })
+
+// Contact Form Handling
+const contactForm = document.getElementById("contactForm")
+const formMessage = document.getElementById("formMessage")
+
+if (contactForm) {
+  contactForm.addEventListener("submit", function (e) {
+    e.preventDefault()
+
+    // Check if honeypot field is filled (spam bot)
+    if (document.getElementById("website").value !== "") {
+      return false
+    }
+
+    // Get form data
+    const formData = new FormData(this)
+
+    // Show loading state
+    const submitBtn = this.querySelector("button[type='submit']")
+    const originalBtnText = submitBtn.textContent
+    submitBtn.textContent = "Sending..."
+    submitBtn.disabled = true
+
+    // Send form data
+    fetch(this.action, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok")
+        }
+        return response.json()
+      })
+      .then((data) => {
+        // Show success message
+        formMessage.textContent = "Your message has been sent successfully. We'll get back to you soon!"
+        formMessage.classList.add("success")
+        formMessage.style.display = "block"
+
+        // Reset form
+        contactForm.reset()
+      })
+      .catch((error) => {
+        // Show error message
+        formMessage.textContent = "There was a problem sending your message. Please try again later."
+        formMessage.classList.add("error")
+        formMessage.style.display = "block"
+      })
+      .finally(() => {
+        // Reset button state
+        submitBtn.textContent = originalBtnText
+        submitBtn.disabled = false
+      })
+  })
+}
