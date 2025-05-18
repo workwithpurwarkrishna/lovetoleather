@@ -1,4 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Set current year in footer
+  const currentYearElements = document.querySelectorAll("#currentYear");
+  if (currentYearElements.length > 0) {
+    const currentYear = new Date().getFullYear();
+    currentYearElements.forEach(element => {
+      element.textContent = currentYear;
+    });
+  }
+  
   // Mobile Menu Toggle
   const menuToggle = document.getElementById("menuToggle")
   const mainNav = document.getElementById("mainNav")
